@@ -446,13 +446,13 @@ private doHttpRequest(String method, String path, Map body = [:]) {
         httpGet(params, $parseResponse)
         break
     }
-  } catch(error) {
-    // Is this an HTTP error or a different exception?
-    if (error.metaClass.respondsTo(error, 'response')) {
+    } catch(error) {
+    // Hubitat sandbox blocks metaClass; use hasProperty instead
+    if (error.hasProperty('response') && error.response) {
       if (logTrace) log.trace error.response.data
       status = error.response.status?.toString()
       result = error.response.data
-      message = error.response.data?.message ?:  "${method} ${path} failed"
+      message = error.response.data?.message ?: "${method} ${path} failed"
       log.error "HTTPS ${method} ${path} result: ${error.response.status} ${error.response.data?.message}"
       error.response.data?.errors?.each() { errormsg ->
         log.warn errormsg.toString()
